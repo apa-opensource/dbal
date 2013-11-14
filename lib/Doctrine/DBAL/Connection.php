@@ -27,14 +27,15 @@ use PDO, Closure, Exception,
     Doctrine\DBAL\Cache\ResultCacheStatement,
     Doctrine\DBAL\Cache\QueryCacheProfile,
     Doctrine\DBAL\Cache\ArrayStatement,
-    Doctrine\DBAL\Cache\CacheException;
+    Doctrine\DBAL\Cache\CacheException,
+    Doctrine\DBAL\Driver\PingableConnection;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
  * events, transaction isolation levels, configuration, emulated transaction nesting,
  * lazy connecting and more.
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
@@ -1304,5 +1305,18 @@ class Connection implements DriverConnection
     public function createQueryBuilder()
     {
         return new Query\QueryBuilder($this);
+    }
+
+    /**
+     * Ping the server!
+     *
+     * @return bool
+     */
+    public function ping()
+    {
+        if (!($this->_conn instanceof PingableConnection)) {
+            throw ConnectionException::unsupportedFeature('ping');
+        }
+        return $this->_conn->ping();
     }
 }
